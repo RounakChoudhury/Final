@@ -1,0 +1,130 @@
+open aws s3
+create a bucket
+general purpose
+aclis enabled
+
+uncheck block all public access
+bucket versioning = disable
+bucket key = enable
+advanced setting -> object lock = enable
+
+create an iam user
+attach policy directly
+s3 full access
+generate access key and secret key
+
+open GitHub
+create a new repo
+create an index.html file
+put sone content in it
+
+go into the repo
+click on settings
+secrets and variable 
+actions
+click on new repo secret
+in name give name to distinguish secret and access
+paste the secret and access key from iam user in the secret part
+click add secret
+do this two times and add two files for access and secret key generated from the iam user
+
+go into the repo
+click on actions from the top row
+click on new workflow
+configure the suggested one for a new repo
+for a old repo :
+click on set up a workflow yourself
+paste the following in the console :
+
+name: CI/CD for day86 //start copying from here till line no.61
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v1
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.ACCESSONE }} // give the name of the access file u created in the GitHub action workflow file after secrets.
+          aws-secret-access-key: ${{ secrets.SECRET}} // give the name of the secret file u created in the GitHub action workflow file after secrets.
+          aws-region: us-east-1
+
+      - name: Deploy Static Site to S3 Bucket
+        run: aws s3 sync . s3://rnkchybucket --delete // give the name of your bucket
+
+commit the file with name = main.yml
+
+goto aws s3
+open the bucket created
+click on properties
+scroll down to Static website hosting
+click on edit
+static website hosting = enable
+hosting type = host a static website
+index document = index.html
+under redirection rules in 1 paste the following code :
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadGetObject",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": [
+                "s3:GetObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::rnkchybucket/*" // give the name of the bucket
+            ]
+        }
+    ]
+}
+
+save changes
+
+goto s3
+open the bucket created
+properties
+scroll down to the end
+click on the last link under bucket website endpoint
+
+a new web page opens to display the content of index.html file
+
+
+
+
+
+
+
+
+
+To replicate the bucket in cross region:
+
+Create a s3 bucket in N.Virginia
+upload a file in the bucket
+
+duplicate the page and open s3 in the ohio region
+create a bucket in ohio
+
+open the n.v bucket 
+goto management
+create replication rule
+give name
+source bucket -> apply to all object in the bucket
+under destination
+choose -> choose a bucket in this account
+click on browse s3
+choose the bucket
+save
+
+goto ohio
+the uploaded file in the n.v region appears
