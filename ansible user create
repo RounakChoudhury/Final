@@ -1,0 +1,46 @@
+create an user
+attach policies
+  ec2fullaccess
+  administrator access
+generate access and secret keys
+
+sudo yum install python3-pip -y
+pip3 install boto3
+pip3 install botocore 
+aws configure
+ansible-galaxy collection install amazon.aws
+mkdir /inst
+cd /inst/
+vim creds.yaml
+aws_access_key: //paste AK
+aws_secret_key: //paste SK
+
+vim ec2.yaml
+
+---
+- name: creating ec2 instance
+  hosts: all
+  vars_files:
+ 
+- creds.yaml
+  tasks:
+        - name: creating Ec2 instance via Ansible
+          amazon.aws.ec2_instance:
+            aws_access_key: "{{ aws_access_key }}"
+            aws_secret_key: "{{ aws_secret_key }}"
+            name: web-serv
+            instance_type: t2.medium
+            image_id: ami-00ca32bbc84273381
+            vpc_subnet_id: subnet-07557da9ba3082bb1
+            security_group: sg-0e7b493bf8f5f8907
+            key_name: aura
+            region: us-east-1
+            count: 1
+            state: present
+
+vim inventory.ini
+
+[localhost]
+127.0.0.1 ansible_connection=local ansible_python_interpreter=/usr/bin/python3
+
+ansible-playbook -i inventory.ini ec2.yaml
