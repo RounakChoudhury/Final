@@ -1,0 +1,25 @@
+create a instance
+add custom TCP 8080 in security rules
+connect in terminal
+
+yum install docker* -y
+systemctl start docker
+systemctl enable docker
+docker info
+
+docker pull ubuntu:rolling
+docker image ls
+
+docker run -it --name Container1 -p 8080:80 ubuntu:rolling /bin/bash
+
+apt update -y
+apt install apache2 -y
+service apache2 start
+
+cd /var/www/html
+echo "This is a container (1)!" > index.html
+apt install curl
+curl http://localhost
+
+copy the public IPV4 address 
+paste in address bar along with post no.8080
