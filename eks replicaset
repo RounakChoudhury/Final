@@ -1,0 +1,90 @@
+create an instance 
+connect in terminal
+
+create iam user
+no policy attach
+generate access key and secret key
+
+goto roles
+create role:
+aws service
+ec2
+give the following access :
+	IAMFullAccess
+	AmazonElasticContainerRegistryPublicFullAccess
+	AmazonEKSClusterPolicy
+
+goto ec2
+select the instance created
+actions
+security
+modify iam role
+select the rule created
+update iam role
+
+goto terminal
+
+yum update -y
+yum install unzip -y
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
+unzip awscliv2.zip
+sudo ./aws/install
+aws configure
+
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+
+sudo mv /tmp/eksctl /usr/local/bin
+eksctl version
+
+curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+kubectl version --client
+ssh-keygen
+
+eksctl create cluster --name my-cluster --region us-east-1 --version 1.32 --vpc-public-subnets subnet-ExampleID1,subnet-ExampleID2 --without-nodegroup // give subnet id: a and b from aws 
+
+eksctl create nodegroup \
+  --cluster my-cluster \ // give the name of the cluster specifoed in the last line
+  --region us-east-1 \
+  --name my-node-group \ // give what you want your nodegroup to be called
+  --node-ami-family Ubuntu2204 \
+  --node-type t3.micro \ // give your instance type
+  --subnet-ids subnet-086ced1a84c94a342,subnet-01695faa5e0e61d97 \ // give your subnet ids
+  --nodes 3 \
+  --nodes-min 2 \
+  --nodes-max 4 \
+  --ssh-access \
+  --ssh-public-key /root/.ssh/id_rsa.pub
+
+vim replicaset.yml
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: frontend
+  labels:
+    app: guestbook
+    tier: frontend
+spec:
+  # modify replicas according to your case
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: php-redis
+        image: nginx:1.14.2
+
+kubectl apply -f replicaset.yml
+kubectl get rs
+kubectl expose rs frontend --port=80 --target-port=80 --type=LoadBalancer
+kubectl get svc
