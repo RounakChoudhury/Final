@@ -1,3 +1,33 @@
+Create three instances
+connect them in the terminal
+ping each other
+
+on the control node :
+
+vim /etc/ssh/sshd_config
+systemctl start sshd
+systemctl enable sshd
+
+ssh-keygen
+
+copy the key
+
+goto the worker nodes
+
+cd .ssh
+vim authorized_keys
+
+paste the public key inside
+go back to the control node:
+
+yum update -y
+yum install ansible-core* -y
+cd /etc/ansible/
+
+vim hosts
+[devops]
+<name of the worker node>
+
 create an user
 attach policies
   ec2fullaccess
@@ -44,3 +74,6 @@ vim inventory.ini
 127.0.0.1 ansible_connection=local ansible_python_interpreter=/usr/bin/python3
 
 ansible-playbook -i inventory.ini ec2.yaml
+
+ansible-playbook playbook1.yaml --syntax-check
+ansible-playbook playbook1.yaml
