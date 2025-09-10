@@ -10,13 +10,40 @@ advanced setting -> object lock = enable
 
 create an iam user
 attach policy directly
+administration access
 s3 full access
 generate access key and secret key
+download csv file
+
+goto s3
+open the bucket created
+goto permission
+edit bucket policy
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadGetObject",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": [
+                "s3:GetObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::Bucket-Name/*" // give your bucket name
+            ]
+        }
+    ]
+}
+
+save changes
+
 
 open GitHub
 create a new repo
 create an index.html file
-put sone content in it
+put some content in it
 
 go into the repo
 click on settings
@@ -36,7 +63,7 @@ for a old repo :
 click on set up a workflow yourself
 paste the following in the console :
 
-name: CI/CD for day86 //start copying from here till line no.61
+name: CI/CD for <own bucket name here> //start copying from here to run line
 
 on:
   push:
@@ -58,7 +85,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Deploy Static Site to S3 Bucket
-        run: aws s3 sync . s3://rnkchybucket --delete // give the name of your bucket
+        run: aws s3 sync . s3://rnkchybucket --delete // give your own bucket name
 
 commit the file with name = main.yml
 
@@ -83,7 +110,7 @@ under redirection rules in 1 paste the following code :
                 "s3:GetObject"
             ],
             "Resource": [
-                "arn:aws:s3:::rnkchybucket/*" // give the name of the bucket
+                "arn:aws:s3:::Bucket-Name/*" // give your bucket name after :::
             ]
         }
     ]
@@ -98,33 +125,3 @@ scroll down to the end
 click on the last link under bucket website endpoint
 
 a new web page opens to display the content of index.html file
-
-
-
-
-
-
-
-
-
-To replicate the bucket in cross region:
-
-Create a s3 bucket in N.Virginia
-upload a file in the bucket
-
-duplicate the page and open s3 in the ohio region
-create a bucket in ohio
-
-open the n.v bucket 
-goto management
-create replication rule
-give name
-source bucket -> apply to all object in the bucket
-under destination
-choose -> choose a bucket in this account
-click on browse s3
-choose the bucket
-save
-
-goto ohio
-the uploaded file in the n.v region appears
